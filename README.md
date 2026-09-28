@@ -142,10 +142,13 @@ cd frontend && npm test
 
 ## Deployment
 
-Hosting runs on [Render](https://render.com) (a web service plus Key Value for Celery, both on free plans) and [Neon](https://neon.com) (Postgres). Everything is defined in [`render.yaml`](render.yaml). [`build.sh`](build.sh) builds the React app, which Django then serves. [`start.sh`](start.sh) migrates, seeds the demo, and runs gunicorn with one Celery worker in the same instance.
+Hosting runs on [Render](https://render.com) (free web service; Celery uses a Render Key Value instance) and [Neon](https://neon.com) (Postgres). Everything is defined in [`render.yaml`](render.yaml). [`build.sh`](build.sh) builds the React app, which Django then serves. [`start.sh`](start.sh) migrates, seeds the demo, and runs gunicorn with one Celery worker in the same instance.
 
 1. Create a Neon project and copy its connection string.
-2. In Render, choose **New → Blueprint** and pick this repo. When asked, paste the Neon string for `DATABASE_URL`, and your Paystack **test** secret key (`sk_test_…`) for `PAYSTACK_SECRET_KEY`. Leave the key empty to use the simulator.
+2. In Render, choose **New → Blueprint** and pick this repo. When asked, paste:
+   - the Neon string for `DATABASE_URL`
+   - your Paystack **test** secret key (`sk_test_…`) for `PAYSTACK_SECRET_KEY` (empty = simulator)
+   - the **Internal URL** of a Render Key Value instance for `REDIS_URL`. Render allows one free instance per account, so it can be shared with another app (add `/1` to use a separate database number). Leave it empty and background tasks run inline instead.
 3. In the Paystack dashboard (Settings → API Keys & Webhooks), set the **Test Webhook URL** to `https://<your-app>.onrender.com/api/payments/webhook/`.
 
 | Variable | Purpose |

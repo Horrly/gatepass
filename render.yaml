@@ -1,7 +1,9 @@
 # Render Blueprint: https://render.com/docs/blueprint-spec
-# One web service (Django + a Celery worker, see start.sh) and a Redis-compatible
-# Key Value instance for Celery. Postgres lives on Neon: paste its connection
-# string when Render asks for DATABASE_URL.
+# One web service (Django + a Celery worker, see start.sh).
+# Postgres lives on Neon: paste its connection string for DATABASE_URL.
+# Redis (Celery's broker): Render allows one free Key Value instance per account,
+# so paste the Internal URL of an existing one for REDIS_URL (it can be shared
+# with another app), or leave it empty to run background tasks inline.
 
 services:
   - type: web
@@ -23,12 +25,4 @@ services:
       - key: PAYSTACK_SECRET_KEY
         sync: false # sk_test_... from Paystack; leave empty to use the payment simulator
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: gatepass-redis
-          property: connectionString
-
-  - type: keyvalue
-    name: gatepass-redis
-    plan: free
-    ipAllowList: [] # only reachable from your Render services
+        sync: false # Internal URL of a Render Key Value instance, e.g. redis://red-xxxx:6379/1
