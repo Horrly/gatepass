@@ -1,0 +1,34 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# One web service (Django + a Celery worker, see start.sh) and a Redis-compatible
+# Key Value instance for Celery. Postgres lives on Neon: paste its connection
+# string when Render asks for DATABASE_URL.
+
+services:
+  - type: web
+    name: gatepass
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: bash start.sh
+    healthCheckPath: /api/health/
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # your Neon connection string
+      - key: PAYSTACK_SECRET_KEY
+        sync: false # sk_test_... from Paystack; leave empty to use the payment simulator
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: gatepass-redis
+          property: connectionString
+
+  - type: keyvalue
+    name: gatepass-redis
+    plan: free
+    ipAllowList: [] # only reachable from your Render services

@@ -1,0 +1,15 @@
+Hi {{ order.buyer.username }},
+
+You're going to {{ event.title }}!
+
+When:  {{ starts_at|date:"l, j F Y, g:i A" }}
+Where: {{ event.venue }}, {{ event.city }}
+Order: {{ order.reference }}
+
+Your {{ tickets|length }} ticket{{ tickets|length|pluralize }} {{ tickets|length|pluralize:"is,are" }} attached as QR codes. Show one per person at the entrance.
+You can also open them any time at {{ tickets_url }}
+
+{% for ticket in tickets %}- {{ ticket.ticket_type.name }}: {{ ticket.code }}
+{% endfor %}
+See you there,
+Gatepass
