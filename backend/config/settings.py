@@ -156,9 +156,14 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # --- Email --------------------------------------------------------------
-# Set EMAIL_HOST (+ user/password) to send real emails; otherwise they print to the log.
+# BREVO_API_KEY: send over Brevo's HTTPS API (works on hosts that block SMTP, like Render's free plan).
+# EMAIL_HOST (+ user/password): send over SMTP.
+# Neither: emails print to the log.
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 EMAIL_HOST = os.environ.get("EMAIL_HOST")
-if EMAIL_HOST:
+if BREVO_API_KEY:
+    EMAIL_BACKEND = "config.email.BrevoEmailBackend"
+elif EMAIL_HOST:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
     EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
